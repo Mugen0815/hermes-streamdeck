@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Tunnel</title>
+	<script src="sdpi-components.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<h2 class="section">SSH tunnel (all keys)</h2>
+	<sdpi-item label="SSH host">
+		<sdpi-textfield setting="tunnelHost" global placeholder="alias from ~/.ssh/config"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Local port">
+		<sdpi-textfield setting="tunnelLocalPort" global placeholder="8642"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Target host">
+		<sdpi-textfield setting="tunnelRemoteHost" global placeholder="127.0.0.1"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Target port">
+		<sdpi-textfield setting="tunnelRemotePort" global placeholder="8642"></sdpi-textfield>
+	</sdpi-item>
+	<p class="hint">A press starts <code>ssh -N -L</code> to the SSH host, another press stops it. Login must work with an SSH key and without a password prompt. Best set the host up as an alias in <code>~/.ssh/config</code> (user, key file). The local port must match the Hermes URL.</p>
+	<p class="hint">A tunnel you started yourself outside Stream Deck is shown as "External" and is not stopped.</p>
+
+	<h2 class="section">Hermes</h2>
+	<sdpi-item label="Hermes URL">
+		<sdpi-textfield setting="baseUrl" global default="http://127.0.0.1:8642" placeholder="http://127.0.0.1:8642"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="">
+		<sdpi-button id="test-connection">Test connection</sdpi-button>
+	</sdpi-item>
+	<div id="test-result" class="result"></div>
+	<p class="hint">The test checks step by step: SSH tunnel (if none is open, one is opened for the test only and closed afterwards), Hermes reachability and API key.</p>
+	<script src="connection.js"></script>
+</body>
+</html>

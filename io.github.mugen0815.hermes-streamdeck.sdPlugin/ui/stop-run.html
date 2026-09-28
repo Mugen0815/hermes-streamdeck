@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Stop Run</title>
+	<script src="sdpi-components.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<sdpi-item label="Stops run of">
+		<sdpi-select id="target" setting="target" datasource="getStartKeys" hot-reload default="" loading="Loading Start keys…"></sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="">
+		<sdpi-button id="refresh-targets">Refresh list</sdpi-button>
+	</sdpi-item>
+	<p class="hint">The list shows Start Run keys that have been visible since Stream Deck started. "Most recently started run" always follows the Start key pressed last; the Stop key shows which one that is.</p>
+
+	<h2 class="section">Connection (all keys)</h2>
+	<sdpi-item label="Hermes URL">
+		<sdpi-textfield setting="baseUrl" global default="http://127.0.0.1:8642" placeholder="http://127.0.0.1:8642"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="API key">
+		<sdpi-password setting="apiKey" global placeholder="API_SERVER_KEY"></sdpi-password>
+	</sdpi-item>
+	<sdpi-item label="">
+		<sdpi-button id="test-connection">Test connection</sdpi-button>
+	</sdpi-item>
+	<div id="test-result" class="result"></div>
+	<p class="hint">The test checks step by step: SSH tunnel (if set up in a Tunnel key – if none is open, one is opened for the test only), Hermes reachability and API key.</p>
+	<p class="hint">The API key is stored in Stream Deck's global plugin settings, not in profiles or key exports.</p>
+	<script src="connection.js"></script>
+	<script>
+		document.getElementById("refresh-targets").addEventListener("click", () => document.getElementById("target").refresh());
+	</script>
+</body>
+</html>

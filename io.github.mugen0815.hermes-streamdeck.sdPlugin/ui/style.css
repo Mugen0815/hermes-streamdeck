@@ -1,0 +1,8 @@
+.hint { font-size: 9pt; color: #9a9a9a; margin: 4px 0 8px 0; line-height: 1.35; }
+.result { font-size: 9pt; margin: 2px 0 8px 0; min-height: 1.2em; color: #d8d8d8; }
+.step { margin: 2px 0; line-height: 1.35; }
+.step.ok { color: #4ade80; }
+.step.error { color: #f87171; }
+.step.warn { color: #fbbf24; }
+.step.info { color: #b0b0b0; }
+h2.section { font-size: 9pt; font-weight: 600; color: #d8d8d8; margin: 14px 0 4px 0; text-transform: uppercase; letter-spacing: 0.04em; }

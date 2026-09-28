@@ -1,0 +1,26 @@
+# Dependencies & build output
+node_modules/
+dist/
+bin/
+*.streamDeckPlugin
+
+# Logs
+*.log
+logs/
+
+# Local secrets & personal config
+.env
+.env.*
+!.env.example
+
+# Internal project brief (contains personal environment details)
+plan.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Stream Deck plugin runtime
+*.sdPlugin/logs/

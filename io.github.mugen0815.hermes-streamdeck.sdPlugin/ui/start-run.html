@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Start Run</title>
+	<script src="sdpi-components.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<sdpi-item label="Prompt">
+		<sdpi-textarea setting="prompt" rows="6" maxlength="8000" showlength></sdpi-textarea>
+	</sdpi-item>
+	<p class="hint">Placeholders: <code>{{clipboard}}</code> (text from the clipboard), <code>{{input}}</code> (asks in a small window when pressed), <code>{{date}}</code>, <code>{{time}}</code>.</p>
+	<sdpi-item label="Model">
+		<sdpi-textfield setting="model" placeholder="empty = Hermes default"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="Result">
+		<sdpi-select setting="afterRun" default="ack_open">
+			<option value="ack_open">Open when acknowledged</option>
+			<option value="auto_open">Open immediately</option>
+			<option value="clipboard">Copy to clipboard</option>
+			<option value="save">Save only</option>
+		</sdpi-select>
+	</sdpi-item>
+	<p class="hint">Every result is saved as a Markdown file in <i>Documents\Hermes Streamdeck</i>. Set the key title with Stream Deck's title field above. Pressing again while a run is active is ignored. A finished run (Done, Stopped, Failed) stays on the key until you acknowledge it by pressing Start or Stop.</p>
+
+	<h2 class="section">Connection (all keys)</h2>
+	<sdpi-item label="Hermes URL">
+		<sdpi-textfield setting="baseUrl" global default="http://127.0.0.1:8642" placeholder="http://127.0.0.1:8642"></sdpi-textfield>
+	</sdpi-item>
+	<sdpi-item label="API key">
+		<sdpi-password setting="apiKey" global placeholder="API_SERVER_KEY"></sdpi-password>
+	</sdpi-item>
+	<sdpi-item label="">
+		<sdpi-button id="test-connection">Test connection</sdpi-button>
+	</sdpi-item>
+	<div id="test-result" class="result"></div>
+	<p class="hint">The test checks step by step: SSH tunnel (if set up in a Tunnel key – if none is open, one is opened for the test only), Hermes reachability and API key.</p>
+	<p class="hint">The API key is stored in Stream Deck's global plugin settings, not in profiles or key exports.</p>
+
+	<h2 class="section">Result files (all keys)</h2>
+	<sdpi-item label="Keep (days)">
+		<sdpi-textfield setting="resultsRetentionDays" global placeholder="30 (0 = forever)"></sdpi-textfield>
+	</sdpi-item>
+	<script src="connection.js"></script>
+</body>
+</html>

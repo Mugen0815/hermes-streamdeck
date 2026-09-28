@@ -1,0 +1,86 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Hermes Streamdeck",
+	"Version": "0.1.0.0",
+	"Author": "Mugen0815",
+	"Description": "Start, monitor and stop Hermes Agent runs from your Stream Deck. Unofficial community plugin.",
+	"Category": "Hermes Streamdeck",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"Icon": "imgs/plugin/marketplace",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "13"
+		}
+	],
+	"Nodejs": {
+		"Version": "24",
+		"Debug": "enabled"
+	},
+	"UUID": "io.github.mugen0815.hermes-streamdeck",
+	"Actions": [
+		{
+			"Name": "Start Run",
+			"UUID": "io.github.mugen0815.hermes-streamdeck.start-run",
+			"Icon": "imgs/actions/start-run/icon",
+			"Tooltip": "Starts a Hermes run with the configured prompt and shows its status.",
+			"PropertyInspectorPath": "ui/start-run.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"States": [
+				{
+					"Image": "imgs/actions/start-run/key",
+					"TitleAlignment": "top",
+					"FontSize": 12
+				}
+			]
+		},
+		{
+			"Name": "Stop Run",
+			"UUID": "io.github.mugen0815.hermes-streamdeck.stop-run",
+			"Icon": "imgs/actions/stop-run/icon",
+			"Tooltip": "Stops the run of a selected Start Run key.",
+			"PropertyInspectorPath": "ui/stop-run.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"States": [
+				{
+					"Image": "imgs/actions/stop-run/key",
+					"TitleAlignment": "top",
+					"FontSize": 12
+				}
+			]
+		},
+		{
+			"Name": "Tunnel",
+			"UUID": "io.github.mugen0815.hermes-streamdeck.tunnel",
+			"Icon": "imgs/actions/tunnel/icon",
+			"Tooltip": "Starts or stops the SSH tunnel to the Hermes API and shows its state.",
+			"PropertyInspectorPath": "ui/tunnel.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"States": [
+				{
+					"Image": "imgs/actions/tunnel/key",
+					"TitleAlignment": "top",
+					"FontSize": 12
+				}
+			]
+		}
+	]
+}
