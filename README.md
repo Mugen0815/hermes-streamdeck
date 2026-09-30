@@ -10,7 +10,7 @@ A Stream Deck plugin that starts, monitors and stops [Hermes Agent](https://herm
 It is a remote control for an existing Hermes API server, not a second agent implementation.
 
 > Independent community project — not affiliated with or endorsed by Nous Research or Elgato.
-> Status: 0.1, developed and tested on Windows. macOS is declared in the manifest but untested.
+> Status: 0.2, developed and tested on Windows. macOS is declared in the manifest but untested.
 
 ## Requirements
 
@@ -190,7 +190,7 @@ The page is served by the plugin on `127.0.0.1` (random port) and protected by a
 - Action settings (prompt, model, last run id) are plain text and are part of profile exports. Don't put secrets into prompts.
 - Result files contain the full prompt (including inserted clipboard/dialog text) and Hermes' answer and stay on disk until the retention period ends. Keep that in mind for sensitive content.
 
-## Known limits (0.1)
+## Known limits (0.2)
 
 - Hermes' approval timeout is not exposed by the API, so the page shows how long the request has been waiting rather than a countdown.
 - **Run history is in memory on the Hermes side.** Hermes keeps a finished run's status for about an hour and forgets all runs when it restarts. After a Stream Deck restart the key re-checks its last run; if Hermes no longer knows it, the key shows *Unknown* instead of guessing.
