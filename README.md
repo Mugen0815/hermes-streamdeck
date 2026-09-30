@@ -147,7 +147,7 @@ Drag **Steer Run** onto a key, choose its target like for Stop Run (a specific S
 | No run / Not running (dimmed) | no active run, or the run is waiting for an approval / stopping (Hermes only accepts steer text while a run is running) |
 | Queued ✓ | Hermes accepted the text |
 
-Hermes queues steer text and hands it to the agent at its **next tool boundary** — "Queued" means accepted, not processed. If the run ends before that, the undelivered text is listed under *Steer not delivered* in the result file.
+Hermes queues steer text and hands it to the agent at its **next tool boundary** — "Queued" means accepted, not processed. Every accepted text is listed with its time under *Steer* in the run's result file. If the run ends before that, the undelivered text is listed under *Steer not delivered* in the result file.
 
 ## Prompt placeholders
 
@@ -161,7 +161,7 @@ Example: `Summarize this text in three bullet points: {{clipboard}}`. Names are 
 
 ## Results
 
-Every finished run is saved as a Markdown file in **Documents\Hermes Streamdeck** (`2026-09-28 20-15-42 <key title>.md`) with status, times, run id, the resolved prompt and Hermes' answer. Per Start Run key you choose what happens with it:
+Every finished run is saved as a Markdown file in **Documents\Hermes Streamdeck** (`2026-09-28 20-15-42 <key title>.md`) with status, times, run id, the resolved prompt, the steer texts sent to the run and Hermes' answer. Per Start Run key you choose what happens with it:
 
 | Result | Behaviour |
 |---|---|

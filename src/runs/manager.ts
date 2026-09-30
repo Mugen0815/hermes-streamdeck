@@ -207,6 +207,8 @@ export class RunManager {
 			return "failed";
 		}
 		this.#log(`steer queued for run ${runId}`);
+		// Remember what was sent so the result file shows the whole conversation with the agent.
+		entry.snapshot = { ...entry.snapshot, steers: [...(entry.snapshot.steers ?? []), { at: this.#now(), text }] };
 		return "queued";
 	}
 

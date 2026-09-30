@@ -137,6 +137,7 @@ export class App {
 				error: snapshot.error,
 				denied: snapshot.denied,
 				pendingSteer: snapshot.pendingSteer,
+				steers: snapshot.steers,
 			});
 		} catch (err) {
 			log(`writing result file failed: ${String(err)}`);

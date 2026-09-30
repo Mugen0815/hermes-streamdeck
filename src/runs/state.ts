@@ -1,5 +1,11 @@
 import type { PendingApproval, RunEvent } from "../hermes/types";
 
+export type SteerRecord = {
+	/** When Hermes accepted the text (ms). */
+	at: number;
+	text: string;
+};
+
 /**
  * What a Start Run key shows for its run.
  */
@@ -35,6 +41,8 @@ export type RunSnapshot = {
 	error?: string;
 	/** Accepted steer text that never reached the agent (in memory only). */
 	pendingSteer?: string;
+	/** Steer texts sent to this run by the plugin, in order (in memory only). */
+	steers?: SteerRecord[];
 	/** Markdown file with the result, once written. */
 	resultFile?: string;
 };

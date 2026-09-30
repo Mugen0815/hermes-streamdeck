@@ -345,6 +345,37 @@ describe("RunManager", () => {
 			expect(hermes.steerCalls).toEqual([{ runId: "run_1", text: "focus on tests" }]);
 		});
 
+		it("records sent steers and passes them on when the run finishes", async () => {
+			const finished: RunSnapshot[] = [];
+			const hermes = new FakeHermes();
+			let now = 1_000;
+			const manager = new RunManager({
+				client: () => hermes as unknown as HermesClient,
+				persist: () => {},
+				onChange: () => {},
+				onFinished: (_key, snapshot) => finished.push(snapshot),
+				tracker: { pollIntervalMs: 5, backoffMs: [5], reopenDelayMs: 5 },
+				now: () => now,
+			});
+			managers.push(manager);
+			await manager.start("k1", { input: "x" });
+			now = 2_000;
+			await manager.steer("k1", "first");
+			hermes.steerError = new HermesError("conflict", "409", 409, "steer_not_accepted");
+			await manager.steer("k1", "rejected");
+			hermes.steerError = undefined;
+			now = 3_000;
+			await manager.steer("k1", "second");
+
+			await waitFor(() => !!hermes.openStream("run_1"));
+			hermes.openStream("run_1")!.push(event("run.completed", "7"));
+			await waitFor(() => finished.length === 1);
+			expect(finished[0]!.steers).toEqual([
+				{ at: 2_000, text: "first" },
+				{ at: 3_000, text: "second" },
+			]);
+		});
+
 		it("refuses without an active run and while not running", async () => {
 			const { hermes, manager, phase } = setup();
 			expect(await manager.steer("k1", "x")).toBe("no_run");
