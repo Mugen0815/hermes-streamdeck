@@ -15,6 +15,7 @@ export const PLUGIN_UUID = "io.github.mugen0815.hermes-streamdeck";
 export const START_ACTION_UUID = `${PLUGIN_UUID}.start-run`;
 export const STOP_ACTION_UUID = `${PLUGIN_UUID}.stop-run`;
 export const TUNNEL_ACTION_UUID = `${PLUGIN_UUID}.tunnel`;
+export const STEER_ACTION_UUID = `${PLUGIN_UUID}.steer-run`;
 
 /**
  * What happens with a finished run's result file:
@@ -35,6 +36,13 @@ export type StartSettings = {
 export type StopSettings = {
 	/** Action id of the targeted Start Run key; empty = most recently started run. */
 	target?: string;
+};
+
+export type SteerSettings = {
+	/** Action id of the targeted Start Run key; empty = most recently started run. */
+	target?: string;
+	/** Steer text; supports the prompt placeholders. */
+	text?: string;
 };
 
 const logger = streamDeck.logger.createScope("hermes");
@@ -128,6 +136,7 @@ export class App {
 				output: snapshot.output,
 				error: snapshot.error,
 				denied: snapshot.denied,
+				pendingSteer: snapshot.pendingSteer,
 			});
 		} catch (err) {
 			log(`writing result file failed: ${String(err)}`);
@@ -157,6 +166,17 @@ export class App {
 
 	onConnectionChange(listener: (state: ConnectionState) => void): void {
 		this.connection.onChange(listener);
+	}
+
+	/** Start Run key a Stop/Steer key acts on: the explicit target, else the most recently started run. */
+	resolveTarget(explicit: string | undefined): string | undefined {
+		return explicit ? explicit : this.manager.lastStartedKey;
+	}
+
+	/** Target name shown on Stop/Steer keys; "↻" marks the "most recently started" mode. */
+	targetLabel(explicit: string | undefined, target: string | undefined): string {
+		if (target) return explicit ? this.startKeyName(target) : `↻ ${this.startKeyName(target)}`;
+		return explicit ? "target missing" : "last started";
 	}
 
 	/** Display name of a Start Run key for Stop keys and the property inspector. */

@@ -33,6 +33,8 @@ export type RunSnapshot = {
 	/** Final answer / error text (in memory only, not persisted). */
 	output?: string;
 	error?: string;
+	/** Accepted steer text that never reached the agent (in memory only). */
+	pendingSteer?: string;
 	/** Markdown file with the result, once written. */
 	resultFile?: string;
 };

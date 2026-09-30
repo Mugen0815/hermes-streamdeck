@@ -16,6 +16,7 @@ src/
 ├── actions/       Stream Deck actions — key presses, rendering, property inspector messages
 │   ├── start-run.ts
 │   ├── stop-run.ts
+│   ├── steer-run.ts
 │   └── tunnel.ts
 ├── prompt/        placeholder resolution ({{clipboard}}, {{input}}, …)
 │   └── template.ts
@@ -111,3 +112,9 @@ Verified against Hermes 0.21.5:
 - On a Start press, `resolvePrompt()` replaces placeholders in one pass (clipboard read first, then the input dialog). While it runs (dialog open) further presses are refused. Failures end in `start_failed` with a short reason via `RunManager.failBeforeStart()`; a cancelled dialog changes nothing.
 - The tracker keeps the final `output` / `error` (from the terminal event, or from `GET /v1/runs/{id}` if the stream missed it). `RunManager` calls `onFinished` once per run tracked in this session; `App` writes the Markdown file (`ResultStore`), stores its path via `attachResult()` (persisted, so it survives a restart) and applies the key's *Result* setting.
 - `systemDesktop` uses `execFile` only (no shell): PowerShell with UTF-8 in/out for the clipboard and a WinForms input dialog (the key title is passed via an environment variable), `explorer.exe <file>` to open results, and `[Environment]::GetFolderPath('MyDocuments')` so redirected (e.g. OneDrive) document folders are honoured.
+
+## Steer (`actions/steer-run.ts`)
+
+Verified against Hermes 0.21.5: `POST /v1/runs/{id}/steer` with `{"input": "…"}` returns `{"accepted": true}` and emits `run.steered`; the text is delivered at the agent's next tool boundary. Outside status `running` (approval, stopping, finished) Hermes answers `409 run_not_accepting_steer`; a rejected hand-off is `409 steer_not_accepted`. Text still undelivered when the run ends comes back as `pending_steer` on the terminal event / run status.
+
+`RunManager.steer()` only sends for a run the plugin sees as `running` and maps the 409 codes to `not_running` / `not_accepted`. Stop and Steer keys share target resolution (`App.resolveTarget()` / `targetLabel()`) and the `getStartKeys` datasource. The tracker keeps `pendingSteer`, which ends up in the result file.

@@ -51,6 +51,13 @@ describe("result files", () => {
 		expect(md).toContain("## Error");
 	});
 
+	it("notes steer text that never reached the agent", () => {
+		expect(renderMarkdown(RESULT)).not.toContain("Steer not delivered");
+		const md = renderMarkdown({ ...RESULT, pendingSteer: "focus on tests" });
+		expect(md).toContain("## Steer not delivered");
+		expect(md).toContain("```\nfocus on tests\n```");
+	});
+
 	it("writes into the folder (creating it) without overwriting", async () => {
 		const { dir, store } = await tempStore();
 		const a = await store.write(RESULT);

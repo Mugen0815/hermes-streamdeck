@@ -47,6 +47,15 @@ class FakeHermes {
 		return "stopping";
 	}
 
+	steerCalls: { runId: string; text: string }[] = [];
+	steerError: Error | undefined;
+
+	async steerRun(runId: string, text: string): Promise<void> {
+		this.steerCalls.push({ runId, text });
+		await tick();
+		if (this.steerError) throw this.steerError;
+	}
+
 	async respondApproval(runId: string, choice: string, requestId?: string): Promise<void> {
 		this.approvalCalls.push({ runId, choice, requestId });
 		await tick();
@@ -325,6 +334,58 @@ describe("RunManager", () => {
 			manager.restore("k1", { runId: "run_1", phase: "running" });
 			await waitFor(() => phase() === "approval");
 			expect(manager.snapshot("k1").approval?.requestId).toBe("req-9");
+		});
+	});
+
+	describe("steer", () => {
+		it("queues steer text for a running run", async () => {
+			const { hermes, manager } = setup();
+			await manager.start("k1", { input: "x" });
+			expect(await manager.steer("k1", "focus on tests")).toBe("queued");
+			expect(hermes.steerCalls).toEqual([{ runId: "run_1", text: "focus on tests" }]);
+		});
+
+		it("refuses without an active run and while not running", async () => {
+			const { hermes, manager, phase } = setup();
+			expect(await manager.steer("k1", "x")).toBe("no_run");
+
+			await manager.start("k1", { input: "x" });
+			await waitFor(() => !!hermes.openStream("run_1"));
+			hermes.status.set("run_1", "waiting_for_approval");
+			hermes.openStream("run_1")!.push({
+				id: "1",
+				event: "approval.request",
+				runId: "run_1",
+				payload: { event: "approval.request", command: "rm -r /tmp/x", description: "d", request_id: "r", choices: ["once", "deny"] },
+			});
+			await waitFor(() => phase() === "approval");
+			expect(await manager.steer("k1", "x")).toBe("not_running");
+			expect(hermes.steerCalls).toHaveLength(0);
+		});
+
+		it("maps Hermes' 409 answers", async () => {
+			const { hermes, manager } = setup();
+			await manager.start("k1", { input: "x" });
+			hermes.steerError = new HermesError("conflict", "409", 409, "run_not_accepting_steer");
+			expect(await manager.steer("k1", "x")).toBe("not_running");
+			hermes.steerError = new HermesError("conflict", "409", 409, "steer_not_accepted");
+			expect(await manager.steer("k1", "x")).toBe("not_accepted");
+			hermes.steerError = new HermesError("unreachable", "down");
+			expect(await manager.steer("k1", "x")).toBe("failed");
+		});
+
+		it("keeps undelivered steer text from the terminal event", async () => {
+			const { hermes, manager, phase } = setup();
+			await manager.start("k1", { input: "x" });
+			await waitFor(() => !!hermes.openStream("run_1"));
+			hermes.openStream("run_1")!.push({
+				id: "4",
+				event: "run.completed",
+				runId: "run_1",
+				payload: { event: "run.completed", output: "done", pending_steer: "too late" },
+			});
+			await waitFor(() => phase() === "completed");
+			expect(manager.snapshot("k1").pendingSteer).toBe("too late");
 		});
 	});
 

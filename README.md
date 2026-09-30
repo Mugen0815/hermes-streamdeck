@@ -4,6 +4,7 @@ A Stream Deck plugin that starts, monitors and stops [Hermes Agent](https://herm
 
 - **Start Run** — starts the prompt configured on the key and shows the run's live state on that key.
 - **Stop Run** — stops the run of a selected Start Run key (or the most recently started one).
+- **Steer Run** — sends guidance text to that run while it is running (e.g. "focus on the tests").
 - **Tunnel** — starts/stops the SSH tunnel to the Hermes API and shows whether Hermes is reachable through it.
 
 It is a remote control for an existing Hermes API server, not a second agent implementation.
@@ -135,6 +136,18 @@ Optionally drag **Stop Run** onto another key and choose which Start Run key it 
 **Pressing Start while its run is active is ignored** (the key flashes a warning). A finished run (Done, Stopped, Failed, …) stays on the key until you **acknowledge it by pressing Start or the Stop key** targeting it; the key then shows *Ready* again and the next press starts a new run. Every start carries an `Idempotency-Key`, so a retried request after a network hiccup cannot start a second run.
 
 The Stop key shows *Stopping…* after the press and *Stopped* only once Hermes reports the run as cancelled. While its target shows a finished run, the Stop key mirrors that result and a press acknowledges it. With no run at all it flashes *No run*.
+
+## Steer Run
+
+Drag **Steer Run** onto a key, choose its target like for Stop Run (a specific Start Run key or *Most recently started run*) and enter the **Text**. The text supports the same placeholders as prompts; `{{input}}` alone asks for free-form guidance on every press.
+
+| Steer Run key | Meaning |
+|---|---|
+| Steer (purple) | the target run is running — press to send the text |
+| No run / Not running (dimmed) | no active run, or the run is waiting for an approval / stopping (Hermes only accepts steer text while a run is running) |
+| Queued ✓ | Hermes accepted the text |
+
+Hermes queues steer text and hands it to the agent at its **next tool boundary** — "Queued" means accepted, not processed. If the run ends before that, the undelivered text is listed under *Steer not delivered* in the result file.
 
 ## Prompt placeholders
 

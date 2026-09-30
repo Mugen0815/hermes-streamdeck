@@ -21,6 +21,7 @@ export type RunResult = {
 	output?: string;
 	error?: string;
 	denied?: boolean;
+	pendingSteer?: string;
 };
 
 const STATUS_TEXT: Partial<Record<RunPhase, string>> = {
@@ -124,6 +125,7 @@ export function renderMarkdown(r: RunResult): string {
 	lines.push("", "## Prompt", "", fence(prompt), "", "## Answer", "");
 	lines.push(r.output?.trim() ? r.output.trim() : "_(no answer)_");
 	if (r.error) lines.push("", "## Error", "", fence(r.error));
+	if (r.pendingSteer) lines.push("", "## Steer not delivered", "", "The run ended before the agent received this steer text:", "", fence(r.pendingSteer));
 	lines.push("");
 	return lines.join("\n");
 }

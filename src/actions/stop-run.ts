@@ -7,7 +7,7 @@ import streamDeck, {
 	type WillAppearEvent,
 } from "@elgato/streamdeck";
 
-import { type App, type JsonValue, START_ACTION_UUID, STOP_ACTION_UUID, type StopSettings } from "../app";
+import { type App, type JsonValue, STOP_ACTION_UUID, type StopSettings } from "../app";
 import { isTerminalPhase } from "../runs/state";
 import { renderStopKey } from "../ui/render";
 import { handleInspectorMessage } from "./start-run";
@@ -84,21 +84,11 @@ export class StopRunAction extends SingletonAction<StopSettings> {
 	}
 
 	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, StopSettings>): Promise<void> {
-		const payload = ev.payload as { event?: unknown } | null;
-		if (payload && typeof payload === "object" && payload.event === "getStartKeys") {
-			const items = [{ value: "", label: "Most recently started run" }];
-			for (const a of streamDeck.actions) {
-				if (a.manifestId === START_ACTION_UUID) items.push({ value: a.id, label: this.#app.startKeyName(a.id) });
-			}
-			await streamDeck.ui.sendToPropertyInspector({ event: "getStartKeys", items });
-			return;
-		}
 		await handleInspectorMessage(this.#app, ev.payload);
 	}
 
 	#target(stopId: string): string | undefined {
-		const explicit = this.#settings.get(stopId)?.target;
-		return explicit ? explicit : this.#app.manager.lastStartedKey;
+		return this.#app.resolveTarget(this.#settings.get(stopId)?.target);
 	}
 
 	#flashText(id: string, text: string): void {
@@ -120,10 +110,7 @@ export class StopRunAction extends SingletonAction<StopSettings> {
 
 		const explicit = this.#settings.get(id)?.target;
 		const target = this.#target(id);
-		let targetName: string;
-		if (target) targetName = explicit ? this.#app.startKeyName(target) : `↻ ${this.#app.startKeyName(target)}`;
-		else targetName = explicit ? "target missing" : "last started";
-
+		const targetName = this.#app.targetLabel(explicit, target);
 		const phase = target ? this.#app.manager.snapshot(target).phase : undefined;
 		await a.setImage(renderStopKey({ targetPhase: phase, targetName, flash: this.#flash.get(id)?.text }));
 	}

@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 
 import { StartRunAction } from "./actions/start-run";
+import { SteerRunAction } from "./actions/steer-run";
 import { StopRunAction } from "./actions/stop-run";
 import { TunnelAction } from "./actions/tunnel";
 import { App, log } from "./app";
@@ -13,6 +14,7 @@ const app = new App();
 
 streamDeck.actions.registerAction(new StartRunAction(app));
 streamDeck.actions.registerAction(new StopRunAction(app));
+streamDeck.actions.registerAction(new SteerRunAction(app));
 streamDeck.actions.registerAction(new TunnelAction(app));
 
 streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings>((ev) => void app.applyGlobalSettings(ev.settings));

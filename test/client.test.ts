@@ -211,6 +211,26 @@ describe("approvals in the client", () => {
 	});
 });
 
+describe("steer in the client", () => {
+	it("posts the text as input", async () => {
+		const m = mockFetch(() => json(200, { object: "hermes.run.steer", run_id: "run_x", accepted: true }));
+		await client(m.fetch).steerRun("run_x", "focus on tests");
+		expect(m.calls[0]!.url).toBe("http://127.0.0.1:8642/v1/runs/run_x/steer");
+		expect(m.calls[0]!.init?.method).toBe("POST");
+		expect(JSON.parse(m.calls[0]!.init?.body as string)).toEqual({ input: "focus on tests" });
+	});
+
+	it("maps run_not_accepting_steer to conflict", async () => {
+		const m = mockFetch(() => json(409, { error: { code: "run_not_accepting_steer", message: "Run is not currently accepting steer input" } }));
+		await expect(client(m.fetch).steerRun("run_x", "x")).rejects.toMatchObject({ kind: "conflict", code: "run_not_accepting_steer" });
+	});
+
+	it("reads pending_steer from the run status", async () => {
+		const m = mockFetch(() => json(200, { run_id: "run_x", status: "completed", output: "ok", pending_steer: "late" }));
+		expect(await client(m.fetch).getRun("run_x")).toMatchObject({ output: "ok", pendingSteer: "late" });
+	});
+});
+
 describe("normalizeBaseUrl", () => {
 	it.each([
 		["http://127.0.0.1:8642", "http://127.0.0.1:8642"],

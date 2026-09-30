@@ -127,6 +127,17 @@ export class HermesClient {
 	}
 
 	/**
+	 * `POST /v1/runs/{id}/steer`. Hermes queues the text and hands it to the agent at its next tool
+	 * boundary, so success means "accepted", not "processed". Throws `conflict` with code
+	 * `run_not_accepting_steer` unless the run is `running` (not while waiting for approval or
+	 * stopping), or `steer_not_accepted`.
+	 */
+	async steerRun(runId: string, text: string): Promise<void> {
+		const res = await this.#json("POST", `/v1/runs/${encodeURIComponent(runId)}/steer`, { body: { input: text } });
+		if (res.accepted === false) throw new HermesError("conflict", "Steer not accepted", 200, "steer_not_accepted");
+	}
+
+	/**
 	 * Follows `GET /v1/runs/{id}/events` until the server closes the stream, the signal aborts, or no
 	 * data arrives for the idle timeout. Resolves normally when the server closes the stream; the
 	 * caller must reconcile via {@link getRun} if no terminal event was seen.
@@ -279,6 +290,7 @@ function toRunInfo(runId: string, body: Record<string, unknown>): RunInfo {
 	else if (isRecord(body.error) && typeof body.error.message === "string") info.error = body.error.message;
 	if (isRecord(body.approval)) info.approval = parseApproval(body.approval);
 	if (typeof body.output === "string") info.output = body.output;
+	if (typeof body.pending_steer === "string" && body.pending_steer) info.pendingSteer = body.pending_steer;
 	return info;
 }
 
