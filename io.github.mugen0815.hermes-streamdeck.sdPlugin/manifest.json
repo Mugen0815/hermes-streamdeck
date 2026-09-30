@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
 	"Name": "Hermes Streamdeck",
-	"Version": "0.1.0.0",
+	"Version": "0.2.0.0",
 	"Author": "Mugen0815",
 	"Description": "Start, monitor and stop Hermes Agent runs from your Stream Deck. Unofficial community plugin.",
 	"Category": "Hermes Streamdeck",
