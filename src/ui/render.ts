@@ -7,7 +7,7 @@ import type { TunnelStatus } from "../tunnel/tunnel";
  * top (titles are aligned to the top in the manifest); the image carries the status.
  */
 
-type Glyph = "play" | "dots" | "spinner" | "hand" | "square" | "check" | "cross" | "question" | "bolt" | "plug" | "plugOn" | "key";
+type Glyph = "play" | "dots" | "spinner" | "hand" | "square" | "check" | "cross" | "question" | "bolt" | "plug" | "plugOn" | "key" | "steer";
 
 const PLUG = `<path d="M60 52 V64 M84 52 V64" fill="none" stroke-width="6" stroke-linecap="round"/><path d="M54 64 H90 V74 A18 18 0 0 1 54 74 Z" stroke="none"/><path d="M72 92 V100" fill="none" stroke-width="6" stroke-linecap="round"/>`;
 
@@ -87,6 +87,24 @@ export function renderStopKey(view: StopKeyView): string {
 	return svg("#27272a", "square", "No run", view.targetName, false, 0.45);
 }
 
+export type SteerKeyView = {
+	targetPhase: RunPhase | undefined;
+	targetName: string;
+	/** Transient feedback after a press; ok = steer queued. */
+	flash?: { text: string; ok: boolean };
+};
+
+export function renderSteerKey(view: SteerKeyView): string {
+	if (view.flash) {
+		return view.flash.ok
+			? svg("#15803d", "check", view.flash.text, view.targetName, false)
+			: svg("#52525b", "steer", view.flash.text, view.targetName, false);
+	}
+	if (view.targetPhase === "running") return svg("#6d28d9", "steer", "Steer", view.targetName, false);
+	const waiting = view.targetPhase === "approval" || view.targetPhase === "stopping" || view.targetPhase === "starting" || view.targetPhase === "checking";
+	return svg("#27272a", "steer", waiting ? "Not running" : "No run", view.targetName, false, 0.45);
+}
+
 export function renderTunnelKey(status: TunnelStatus, host: string | undefined, flash?: string): string {
 	const where = host || "not set up";
 	if (flash) return svg("#52525b", "plug", flash, status.detail ?? where, false);
@@ -156,6 +174,9 @@ function glyphSvg(glyph: Glyph): string {
 			return `${PLUG}<path d="M50 98 L96 54" fill="none" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>`;
 		case "plugOn":
 			return PLUG;
+		case "steer":
+			// Arrow bending to the right: a nudge to change course.
+			return `<path d="M58 96 V76 A16 16 0 0 1 74 60 H88" fill="none" stroke-width="7" stroke-linecap="round"/><path d="M84 50 L96 60 L84 70 Z" stroke="none"/>`;
 		case "key":
 			return `<circle cx="60" cy="74" r="13" fill="none" stroke-width="7"/><path d="M73 74 H96 M88 74 V84 M96 74 V82" fill="none" stroke-width="7" stroke-linecap="round"/>`;
 	}

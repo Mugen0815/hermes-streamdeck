@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Steer Run</title>
+	<script src="sdpi-components.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<sdpi-item label="Steers run of">
+		<sdpi-select id="target" setting="target" datasource="getStartKeys" hot-reload default="" loading="Loading Start keys…"></sdpi-select>
+	</sdpi-item>
+	<sdpi-item label="">
+		<sdpi-button id="refresh-targets">Refresh list</sdpi-button>
+	</sdpi-item>
+	<sdpi-item label="Text">
+		<sdpi-textarea setting="text" rows="4" maxlength="4000" showlength></sdpi-textarea>
+	</sdpi-item>
+	<p class="hint">Placeholders: <code>{{input}}</code> (asks in a small window when pressed), <code>{{clipboard}}</code>, <code>{{date}}</code>, <code>{{time}}</code>. Use <code>{{input}}</code> alone for free-form guidance.</p>
+	<p class="hint">Hermes accepts steer text only while the run is running (not while it waits for an approval). The text is queued and reaches the agent at its next tool boundary, so the key shows "Queued", not "done". If the run ends first, the undelivered text is noted in the result file.</p>
+	<script>
+		document.getElementById("refresh-targets").addEventListener("click", () => document.getElementById("target").refresh());
+	</script>
+</body>
+</html>

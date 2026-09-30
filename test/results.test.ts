@@ -51,6 +51,26 @@ describe("result files", () => {
 		expect(md).toContain("## Error");
 	});
 
+	it("lists sent steer texts between prompt and answer", () => {
+		expect(renderMarkdown(RESULT)).not.toContain("## Steer");
+		const md = renderMarkdown({
+			...RESULT,
+			steers: [
+				{ at: new Date(2026, 8, 28, 20, 5, 10).getTime(), text: "Answer in English" },
+				{ at: new Date(2026, 8, 28, 20, 5, 20).getTime(), text: "Add an emoji" },
+			],
+		});
+		expect(md).toContain("## Steer\n\n**20:05:10**\n\n```\nAnswer in English\n```\n\n**20:05:20**\n\n```\nAdd an emoji\n```\n\n## Answer");
+		expect(md.indexOf("## Prompt")).toBeLessThan(md.indexOf("## Steer"));
+	});
+
+	it("notes steer text that never reached the agent", () => {
+		expect(renderMarkdown(RESULT)).not.toContain("Steer not delivered");
+		const md = renderMarkdown({ ...RESULT, pendingSteer: "focus on tests" });
+		expect(md).toContain("## Steer not delivered");
+		expect(md).toContain("```\nfocus on tests\n```");
+	});
+
 	it("writes into the folder (creating it) without overwriting", async () => {
 		const { dir, store } = await tempStore();
 		const a = await store.write(RESULT);

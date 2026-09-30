@@ -14,6 +14,8 @@ export type TrackerUpdate = {
 	/** Final answer / error text once the run is terminal. */
 	output?: string;
 	error?: string;
+	/** Accepted steer text the agent never received. */
+	pendingSteer?: string;
 };
 
 export type TrackerOptions = {
@@ -132,7 +134,9 @@ export class RunTracker {
 				detail: undefined,
 				// The status carries the pending request; any other status means nothing is pending.
 				approval: phase === "approval" ? (info.approval ?? this.#state.approval) : undefined,
-				...(isTerminalPhase(phase) ? { output: info.output ?? this.#state.output, error: info.error ?? this.#state.error } : {}),
+				...(isTerminalPhase(phase)
+					? { output: info.output ?? this.#state.output, error: info.error ?? this.#state.error, pendingSteer: info.pendingSteer ?? this.#state.pendingSteer }
+					: {}),
 			});
 			return true;
 		} catch (err) {
@@ -199,6 +203,7 @@ export class RunTracker {
 		if (isTerminalPhase(phase)) {
 			patch.approval = undefined;
 			if (typeof event.payload.output === "string") patch.output = event.payload.output;
+			if (typeof event.payload.pending_steer === "string" && event.payload.pending_steer) patch.pendingSteer = event.payload.pending_steer;
 			const error = event.payload.error;
 			if (typeof error === "string") patch.error = error;
 			else if (error && typeof error === "object" && typeof (error as { message?: unknown }).message === "string") patch.error = (error as { message: string }).message;

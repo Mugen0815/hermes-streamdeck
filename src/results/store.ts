@@ -1,7 +1,7 @@
 import { mkdir, readdir, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { RunPhase } from "../runs/state";
+import type { RunPhase, SteerRecord } from "../runs/state";
 
 export const RESULTS_FOLDER_NAME = "Hermes Streamdeck";
 export const DEFAULT_RETENTION_DAYS = 30;
@@ -21,6 +21,8 @@ export type RunResult = {
 	output?: string;
 	error?: string;
 	denied?: boolean;
+	pendingSteer?: string;
+	steers?: SteerRecord[];
 };
 
 const STATUS_TEXT: Partial<Record<RunPhase, string>> = {
@@ -121,9 +123,15 @@ export function renderMarkdown(r: RunResult): string {
 		`- **Run:** \`${r.runId}\``,
 	];
 	if (r.model) lines.push(`- **Model:** ${r.model}`);
-	lines.push("", "## Prompt", "", fence(prompt), "", "## Answer", "");
+	lines.push("", "## Prompt", "", fence(prompt), "");
+	if (r.steers?.length) {
+		lines.push("## Steer", "");
+		for (const s of r.steers) lines.push(`**${timestamp(new Date(s.at), ":").slice(11)}**`, "", fence(s.text), "");
+	}
+	lines.push("## Answer", "");
 	lines.push(r.output?.trim() ? r.output.trim() : "_(no answer)_");
 	if (r.error) lines.push("", "## Error", "", fence(r.error));
+	if (r.pendingSteer) lines.push("", "## Steer not delivered", "", "The run ended before the agent received this steer text:", "", fence(r.pendingSteer));
 	lines.push("");
 	return lines.join("\n");
 }

@@ -4,6 +4,7 @@ A Stream Deck plugin that starts, monitors and stops [Hermes Agent](https://herm
 
 - **Start Run** — starts the prompt configured on the key and shows the run's live state on that key.
 - **Stop Run** — stops the run of a selected Start Run key (or the most recently started one).
+- **Steer Run** — sends guidance text to that run while it is running (e.g. "focus on the tests").
 - **Tunnel** — starts/stops the SSH tunnel to the Hermes API and shows whether Hermes is reachable through it.
 
 It is a remote control for an existing Hermes API server, not a second agent implementation.
@@ -136,6 +137,18 @@ Optionally drag **Stop Run** onto another key and choose which Start Run key it 
 
 The Stop key shows *Stopping…* after the press and *Stopped* only once Hermes reports the run as cancelled. While its target shows a finished run, the Stop key mirrors that result and a press acknowledges it. With no run at all it flashes *No run*.
 
+## Steer Run
+
+Drag **Steer Run** onto a key, choose its target like for Stop Run (a specific Start Run key or *Most recently started run*) and enter the **Text**. The text supports the same placeholders as prompts; `{{input}}` alone asks for free-form guidance on every press.
+
+| Steer Run key | Meaning |
+|---|---|
+| Steer (purple) | the target run is running — press to send the text |
+| No run / Not running (dimmed) | no active run, or the run is waiting for an approval / stopping (Hermes only accepts steer text while a run is running) |
+| Queued ✓ | Hermes accepted the text |
+
+Hermes queues steer text and hands it to the agent at its **next tool boundary** — "Queued" means accepted, not processed. Every accepted text is listed with its time under *Steer* in the run's result file. If the run ends before that, the undelivered text is listed under *Steer not delivered* in the result file.
+
 ## Prompt placeholders
 
 | Placeholder | Replaced with |
@@ -148,7 +161,7 @@ Example: `Summarize this text in three bullet points: {{clipboard}}`. Names are 
 
 ## Results
 
-Every finished run is saved as a Markdown file in **Documents\Hermes Streamdeck** (`2026-09-28 20-15-42 <key title>.md`) with status, times, run id, the resolved prompt and Hermes' answer. Per Start Run key you choose what happens with it:
+Every finished run is saved as a Markdown file in **Documents\Hermes Streamdeck** (`2026-09-28 20-15-42 <key title>.md`) with status, times, run id, the resolved prompt, the steer texts sent to the run and Hermes' answer. Per Start Run key you choose what happens with it:
 
 | Result | Behaviour |
 |---|---|

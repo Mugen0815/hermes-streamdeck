@@ -162,4 +162,13 @@ export async function handleInspectorMessage(app: App, payload: JsonValue): Prom
 		log(`connection test: ${report.ok ? "ok" : "failed"} (${report.steps.map((s) => s.status).join(",")})`);
 		await streamDeck.ui.sendToPropertyInspector({ event: "testConnectionResult", ok: report.ok, steps: report.steps });
 	}
+
+	// Datasource for the target select of Stop and Steer keys.
+	if (event === "getStartKeys") {
+		const items = [{ value: "", label: "Most recently started run" }];
+		for (const a of streamDeck.actions) {
+			if (a.manifestId === START_ACTION_UUID) items.push({ value: a.id, label: app.startKeyName(a.id) });
+		}
+		await streamDeck.ui.sendToPropertyInspector({ event: "getStartKeys", items });
+	}
 }

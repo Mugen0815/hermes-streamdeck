@@ -22,6 +22,7 @@ export type PersistedRun = {
 export type StartOutcome = "started" | "busy" | "failed";
 export type StopOutcome = "requested" | "already_stopping" | "no_run" | "failed";
 export type ApprovalOutcome = "answered" | "not_pending" | "not_allowed" | "failed";
+export type SteerOutcome = "queued" | "no_run" | "not_running" | "not_accepted" | "failed";
 
 export type RunManagerOptions = {
 	client: () => HermesClient;
@@ -181,6 +182,36 @@ export class RunManager {
 		return "answered";
 	}
 
+	/**
+	 * Sends steer text to the key's run. Hermes only accepts it while the run is `running`; the text
+	 * is then queued and reaches the agent at its next tool boundary.
+	 */
+	async steer(keyId: string, text: string): Promise<SteerOutcome> {
+		const entry = this.#entries.get(keyId);
+		const runId = entry?.snapshot.runId;
+		if (!entry || !runId || !isActivePhase(entry.snapshot.phase)) return "no_run";
+		if (entry.snapshot.phase !== "running") return "not_running";
+
+		try {
+			await this.#opts.client().steerRun(runId, text);
+		} catch (err) {
+			if (err instanceof HermesError && err.kind === "conflict") {
+				entry.tracker?.nudge(); // our view of the run is probably stale
+				return err.code === "steer_not_accepted" ? "not_accepted" : "not_running";
+			}
+			if (err instanceof HermesError && err.kind === "not_found") {
+				entry.tracker?.nudge();
+				return "no_run";
+			}
+			this.#log(`steer for run ${runId} failed: ${err instanceof Error ? err.message : String(err)}`);
+			return "failed";
+		}
+		this.#log(`steer queued for run ${runId}`);
+		// Remember what was sent so the result file shows the whole conversation with the agent.
+		entry.snapshot = { ...entry.snapshot, steers: [...(entry.snapshot.steers ?? []), { at: this.#now(), text }] };
+		return "queued";
+	}
+
 	/** Records the result file of a finished run (persisted, so a press after a restart still opens it). */
 	attachResult(keyId: string, runId: string, path: string): void {
 		const entry = this.#entries.get(keyId);
@@ -252,6 +283,7 @@ export class RunManager {
 					denied: update.denied || undefined,
 					output: update.output,
 					error: update.error,
+					pendingSteer: update.pendingSteer,
 				});
 				if (terminal && !finished) {
 					finished = true;

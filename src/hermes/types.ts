@@ -26,6 +26,8 @@ export type RunInfo = {
 	approval?: PendingApproval;
 	/** Final answer text of a finished run. */
 	output?: string;
+	/** Steer text that was accepted but never reached the agent before the run ended. */
+	pendingSteer?: string;
 };
 
 /**

@@ -65,6 +65,24 @@
 			]
 		},
 		{
+			"Name": "Steer Run",
+			"UUID": "io.github.mugen0815.hermes-streamdeck.steer-run",
+			"Icon": "imgs/actions/steer-run/icon",
+			"Tooltip": "Sends guidance text to the running run of a selected Start Run key.",
+			"PropertyInspectorPath": "ui/steer-run.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"States": [
+				{
+					"Image": "imgs/actions/steer-run/key",
+					"TitleAlignment": "top",
+					"FontSize": 12
+				}
+			]
+		},
+		{
 			"Name": "Tunnel",
 			"UUID": "io.github.mugen0815.hermes-streamdeck.tunnel",
 			"Icon": "imgs/actions/tunnel/icon",
