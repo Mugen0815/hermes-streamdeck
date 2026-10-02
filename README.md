@@ -1,5 +1,7 @@
 # Hermes Streamdeck
 
+[![CI](https://github.com/Mugen0815/hermes-streamdeck/actions/workflows/ci.yml/badge.svg)](https://github.com/Mugen0815/hermes-streamdeck/actions/workflows/ci.yml)
+
 A Stream Deck plugin that starts, monitors and stops [Hermes Agent](https://hermes-agent.nousresearch.com/) runs from a key.
 
 - **Start Run** — starts the prompt configured on the key and shows the run's live state on that key.
@@ -10,7 +12,7 @@ A Stream Deck plugin that starts, monitors and stops [Hermes Agent](https://herm
 It is a remote control for an existing Hermes API server, not a second agent implementation.
 
 > Independent community project — not affiliated with or endorsed by Nous Research or Elgato.
-> Status: 0.2, developed and tested on Windows. macOS is declared in the manifest but untested.
+> Status: 0.3, developed and tested on Windows. macOS is declared in the manifest but untested.
 
 ## Requirements
 
@@ -82,6 +84,10 @@ Notes:
 - Login must work non-interactively (SSH key without passphrase prompt, host key already in `known_hosts`). On Windows the built-in OpenSSH (`C:\Windows\System32\OpenSSH\ssh.exe`) is used, which reads `%USERPROFILE%\.ssh\config`.
 - The tunnel ends when the Stream Deck app quits. If the plugin is killed hard, the next start finds its ssh process again via a pid file in the temp directory and can stop it.
 - The SSH host is validated (no leading `-`, no spaces or shell characters) and ssh is started without a shell.
+
+## Installation
+
+Download the `.streamDeckPlugin` file from the [latest release](https://github.com/Mugen0815/hermes-streamdeck/releases/latest) and double-click it; Stream Deck installs the plugin.
 
 ## Installation (from source)
 
@@ -190,7 +196,7 @@ The page is served by the plugin on `127.0.0.1` (random port) and protected by a
 - Action settings (prompt, model, last run id) are plain text and are part of profile exports. Don't put secrets into prompts.
 - Result files contain the full prompt (including inserted clipboard/dialog text) and Hermes' answer and stay on disk until the retention period ends. Keep that in mind for sensitive content.
 
-## Known limits (0.2)
+## Known limits (0.3)
 
 - Hermes' approval timeout is not exposed by the API, so the page shows how long the request has been waiting rather than a countdown.
 - **Run history is in memory on the Hermes side.** Hermes keeps a finished run's status for about an hour and forgets all runs when it restarts. After a Stream Deck restart the key re-checks its last run; if Hermes no longer knows it, the key shows *Unknown* instead of guessing.
@@ -200,6 +206,12 @@ The page is served by the plugin on `127.0.0.1` (random port) and protected by a
 - Each key press is a full agent run and consumes tokens accordingly (Hermes sends its complete system prompt, even for tiny prompts).
 - Only one Hermes instance per plugin installation.
 - macOS: declared but untested; the `{{input}}` dialog is Windows-only.
+
+## Development and releases
+
+- Every pull request and push to `main` runs type check, tests, build and manifest validation on Windows and Ubuntu (`.github/workflows/ci.yml`).
+- To release: bump the version in `package.json` (`npm version X.Y.Z --no-git-tag-version`) and `manifest.json` (`X.Y.Z.0`), merge, then push a tag `vX.Y.Z`. The release workflow checks that tag and versions agree, packs the plugin and creates a GitHub release with the `.streamDeckPlugin` file.
+- Dependabot opens weekly grouped update PRs for npm packages and GitHub Actions.
 
 ## License
 
