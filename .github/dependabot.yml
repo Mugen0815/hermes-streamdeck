@@ -8,6 +8,13 @@ updates:
       # One PR per week for all minor/patch updates; majors arrive separately.
       npm-minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # @rollup/plugin-typescript does not support the TypeScript 7 API yet (build fails).
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # Types must match the runtime: the manifest pins Stream Deck's Node.js 24.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions
